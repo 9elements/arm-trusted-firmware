@@ -17,7 +17,7 @@
 #include <xlat_tables.h>
 #include "xlat_tables_private.h"
 
-#if (LOG_LEVEL >= LOG_LEVEL_VERBOSE) && defined(DEBUG_XLAT_TABLES)
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 #define LVL0_SPACER ""
 #define LVL1_SPACER "  "
 #define LVL2_SPACER "    "

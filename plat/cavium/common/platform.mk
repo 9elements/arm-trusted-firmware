@@ -32,23 +32,6 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/aarch64/pl011_console.S	\
 				plat/cavium/common/thunder_dt.c			\
 				plat/cavium/common/thunder_io_storage.c		\
 
-BL1_SOURCES		+=	drivers/cavium/thunder_spi.c			\
-				drivers/io/io_fip.c				\
-				drivers/io/io_memmap.c				\
-				drivers/io/io_storage.c				\
-				lib/cpus/aarch64/thunder.S			\
-				plat/cavium/common/aarch64/thunder_helpers.S	\
-				plat/cavium/common/bl1_thunder_setup.c		\
-
-BL2_SOURCES		+=	drivers/cavium/thunder_spi.c			\
-				drivers/io/io_fip.c				\
-				drivers/io/io_memmap.c				\
-				drivers/io/io_storage.c				\
-				plat/cavium/common/bl2_thunder_setup.c		\
-				plat/cavium/common/thunder_ecam.c		\
-				plat/cavium/common/thunder_gti.c		\
-				plat/cavium/common/thunder_security.c		\
-
 BL31_SOURCES		+=	drivers/arm/gic/common/gic_common.c		\
 				drivers/arm/gic/v3/gicv3_main.c			\
 				drivers/arm/gic/v3/gicv3_helpers.c		\
@@ -81,12 +64,6 @@ ERROR_DEPRECATED	:=	1
 
 CTX_INCLUDE_AARCH32_REGS	:=	0
 
-ifeq (${LOAD_IMAGE_V2},1)
-    BL2_SOURCES		+=	common/desc_image_load.c				\
-				plat/cavium/common/aarch64/thunder_bl2_mem_params_desc.c\
-				plat/cavium/common/thunder_image_load.c
-endif
-
 ifeq (${SECURE_BOOT},1)
     include drivers/auth/mbedtls/mbedtls_common.mk
 
@@ -100,23 +77,10 @@ ifeq (${SECURE_BOOT},1)
     KEY_ALG                := ecdsa
     MBEDTLS_KEY_ALG        := ${KEY_ALG}
 
-    # CIPHER_TYPE that will be used to encrypt/decrypt images
-    # If not defied at build time, do not use encryption
-    ifneq (${CIPHER_TYPE},)
-        MBEDTLS_CIPHER_TYPE	   := ${CIPHER_TYPE}
-        CRYPTO_BOARD_BOOT	   := 1
-    else
-        CRYPTO_BOARD_BOOT	   := 0
-    endif
-
     $(eval $(call add_define,ARM_ROTPK_LOCATION_ID))
-    PLAT_BL_COMMON_SOURCES += drivers/auth/auth_mod.c                              \
-                              drivers/auth/crypto_mod.c                            \
-                              drivers/auth/img_parser_mod.c                        \
-                              plat/cavium/common/thunder_tbbr_cot.c                \
+    PLAT_BL_COMMON_SOURCES += plat/cavium/common/thunder_tbbr_cot.c                \
                               plat/cavium/common/thunder_trusted_boot.c
 
-    CRYPTO_LIB_MK := drivers/auth/mbedtls/mbedtls_crypto.mk
     IMG_PARSER_LIB_MK := drivers/auth/mbedtls/mbedtls_x509.mk
 
     $(info Including ${CRYPTO_LIB_MK})

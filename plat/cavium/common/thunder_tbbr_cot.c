@@ -590,35 +590,5 @@ static const auth_img_desc_t cot_desc[] = {
 #endif
 };
 
-/*
- * Register the images that needs to be encrypted at build time
- * and decrypted during runtime.
- * Definitions and IDs of those images HAS TO match the
- * TBBR CoT defined above.
- */
-#if CRYPTO_BOARD_BOOT
-static const crypto_img_desc_t crypto_params_desc [] = {
-	[BL2_IMAGE_ID] = {
-		.img_id = BL2_IMAGE_ID,
-		.img_type = IMG_RAW,
-		.tbbr_cipher_type_id = TBBR_AES_128_CBC,
-	},
-	[BL31_IMAGE_ID] = {
-		.img_id = BL31_IMAGE_ID,
-		.img_type = IMG_RAW,
-		.tbbr_cipher_type_id = TBBR_AES_128_CBC,
-	},
-	[BL33_IMAGE_ID] = {
-		.img_id = BL33_IMAGE_ID,
-		.img_type = IMG_RAW,
-		.tbbr_cipher_type_id = TBBR_AES_128_CBC,
-	}
-};
-
-/* Register the crypto parameters in the cryptographic module */
-REGISTER_CRYPTO_PARAMS(crypto_params_desc);
-
-#endif /* CRYPTO_BOARD_BOOT */
-
 /* Register the CoT in the authentication module */
 REGISTER_COT(cot_desc);

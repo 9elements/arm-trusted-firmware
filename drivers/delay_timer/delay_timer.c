@@ -8,7 +8,6 @@
 #include <delay_timer.h>
 #include <platform_def.h>
 #include <utils_def.h>
-#include <stdio.h>
 
 /***********************************************************
  * The delay timer implementation
@@ -52,11 +51,7 @@ void udelay(uint32_t usec)
  ***********************************************************/
 void mdelay(uint32_t msec)
 {
-	unsigned long timeout = msec*1000;
-
-	while (timeout--) {
-		udelay(1);
-	}
+	udelay(msec*1000);
 }
 
 /***********************************************************

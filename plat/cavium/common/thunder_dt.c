@@ -164,24 +164,6 @@ int thunder_fill_board_details(int info)
 		return -1;
 	}
 
-#if CRYPTO_BOARD_BOOT
-	/*
-	 * TRUST-BSSK-ADDR is set only when HUK parameter was passed to build system.
-	 * If so, it contains the address of BSSK key. Firstly, try to get BSSK
-	 */
-	bfdt.trust_key_addr = thunder_fdt_get_uint64(fdt, offset, "TRUST-BSSK-ADDR", 16);
-
-	/*
-	 * If either thunder_fdt_get_uint64 returned -1 (property not found) or
-	 * 0 (property found, but set to 0 indicates SSK), print info about it
-	 */
-	if (bfdt.trust_key_addr == 0 || bfdt.trust_rot_addr == -1) {
-		printf("INFO: No TRUST-BSSK-ADDR in DTS, images will be decrypted\n"
-		       "      with SSK key from FUSF_SSKX(0..1).\n");
-		bfdt.trust_key_addr = 0;
-	}
-#endif /* CRYPTO_BOARD_BOOT */
-
 #endif /* TRUSTED_BOARD_BOOT */
 	if (info)
 		print_board_variables();
