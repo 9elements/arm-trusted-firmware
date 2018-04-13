@@ -22,6 +22,9 @@
 #define INTR_ROUTING_MODE_PE		0
 #define INTR_ROUTING_MODE_ANY		1
 
+/* Define a Max interrupt sources per type */
+#define MAX_INTRS			5
+
 /*
  * Constant passed to the interrupt handler in the 'id' field when the
  * framework does not read the gic registers to determine the interrupt id.
@@ -116,6 +119,13 @@ typedef uint64_t (*interrupt_type_handler_t)(uint32_t id,
 					     void *handle,
 					     void *cookie);
 
+
+typedef uint64_t (*interrupt_handler_t)(uint32_t id,
+					uint32_t flags,
+					void *cookie);
+
+uint64_t handle_irq_el3(uint32_t id, uint32_t flags, void *handle, void *cookie);
+
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
@@ -127,6 +137,9 @@ int32_t register_interrupt_type_handler(uint32_t type,
 interrupt_type_handler_t get_interrupt_type_handler(uint32_t type);
 int disable_intr_rm_local(uint32_t type, uint32_t security_state);
 int enable_intr_rm_local(uint32_t type, uint32_t security_state);
+
+int32_t register_interrupt_handler(uint32_t type, uint32_t id,
+					interrupt_handler_t handler);
 
 #endif /*__ASSEMBLY__*/
 #endif /* __INTERRUPT_MGMT_H__ */

@@ -12,7 +12,14 @@ OUTPUT_ARCH(PLATFORM_LINKER_ARCH)
 ENTRY(bl1_entrypoint)
 
 MEMORY {
+#ifdef BL1_RO_BASE
     ROM (rx): ORIGIN = BL1_RO_BASE, LENGTH = BL1_RO_LIMIT - BL1_RO_BASE
+#else
+#define ROM RAM
+#define BL1_RO_BASE BL1_RW_BASE
+#define BL1_RO_LIMIT BL1_RW_LIMIT
+#define BL1_ALL_IN_RAM
+#endif
     RAM (rwx): ORIGIN = BL1_RW_BASE, LENGTH = BL1_RW_LIMIT - BL1_RW_BASE
 }
 
@@ -81,6 +88,14 @@ SECTIONS
         __CPU_OPS_END__ = .;
 
         *(.vectors)
+#ifdef BL1_ALL_IN_RAM
+        /*
+         * Memory page(s) mapped to this section will be marked as
+         * read-only, executable.  No RW data from the next section must
+         * creep in.  Ensure the rest of the current memory page is unused.
+         */
+        . = NEXT(PAGE_SIZE);
+#endif
         __RO_END__ = .;
     } >ROM
 #endif
@@ -88,9 +103,11 @@ SECTIONS
     ASSERT(__CPU_OPS_END__ > __CPU_OPS_START__,
            "cpu_ops not defined for this platform.")
 
+#ifndef BL1_ALL_IN_RAM
     . = BL1_RW_BASE;
     ASSERT(BL1_RW_BASE == ALIGN(PAGE_SIZE),
            "BL1_RW_BASE address is not aligned on a page boundary.")
+#endif
 
     /*
      * The .data section gets copied from ROM to RAM at runtime.
@@ -119,7 +136,7 @@ SECTIONS
      * Its base address should be 16-byte aligned for better performance of the
      * zero-initialization code.
      */
-    .bss : ALIGN(16) {
+    .bss . : ALIGN(16) {
         __BSS_START__ = .;
         *(.bss*)
         *(COMMON)

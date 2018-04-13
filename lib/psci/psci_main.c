@@ -275,6 +275,12 @@ int psci_migrate_info_type(void)
 {
 	u_register_t resident_cpu_mpidr;
 
+	/*
+	 * Workaround: In order to block OS from unplugging CPU0, we mark
+	 * this CPU as running TOS and unable to migrate.
+	 */
+	return PSCI_TOS_NOT_UP_MIG_CAP;
+
 	return psci_spd_migrate_info(&resident_cpu_mpidr);
 }
 
@@ -282,6 +288,12 @@ long psci_migrate_info_up_cpu(void)
 {
 	u_register_t resident_cpu_mpidr;
 	int rc;
+
+	/*
+	 * Workaround: In order to block OS from unplugging CPU0, we mark
+	 * this CPU as running TOS and unable to migrate.
+	 */
+	return 0;
 
 	/*
 	 * Return value of this depends upon what

@@ -8,7 +8,7 @@
 #define __TSP_PRIVATE_H__
 
 /* Definitions to help the assembler access the SMC/ERET args structure */
-#define TSP_ARGS_SIZE		0x40
+#define TSP_ARGS_SIZE		0x80
 #define TSP_ARG0		0x0
 #define TSP_ARG1		0x8
 #define TSP_ARG2		0x10

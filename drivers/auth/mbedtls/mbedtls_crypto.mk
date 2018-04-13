@@ -86,6 +86,19 @@ else
     $(error "TF_MBEDTLS_KEY_ALG=${TF_MBEDTLS_KEY_ALG} not supported on mbed TLS")
 endif
 
+# Cipher type is used to encrypt/decrypt images
+ifeq (${CRYPTO_BOARD_BOOT},1)
+    ifeq (${MBEDTLS_CIPHER_TYPE},aes-128-cbc)
+        MBEDTLS_CRYPTO_SOURCES	+=	$(addprefix ${MBEDTLS_DIR}/library/,	\
+					aes.c					\
+					)
+        TBBR_CIPHER_TYPE_ID	:=	TBBR_AES_128_CBC
+    else
+        $(error "MBEDTLS_CIPHER_TYPE=${MBEDTLS_CIPHER_TYPE} not supported on mbedTLS")
+    endif
+    $(eval $(call add_define,TBBR_CIPHER_TYPE_ID))
+endif
+
 # Needs to be set to drive mbed TLS configuration correctly
 $(eval $(call add_define,TF_MBEDTLS_KEY_ALG_ID))
 $(eval $(call add_define,TF_MBEDTLS_HASH_ALG_ID))

@@ -168,7 +168,7 @@ int bl1_plat_handle_post_image_load(unsigned int image_id);
  ******************************************************************************/
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3);
 #if !ERROR_DEPRECATED
-void bl2_early_platform_setup(struct meminfo *mem_layout);
+void bl2_early_platform_setup(struct meminfo *mem_layout, void *plat_params_from_bl1);
 #endif
 void bl2_plat_arch_setup(void);
 void bl2_platform_setup(void);
@@ -335,6 +335,7 @@ int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr);
 int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr);
 int plat_set_nv_ctr2(void *cookie, const struct auth_img_desc_s *img_desc,
 		unsigned int nv_ctr);
+int plat_get_crypt_key(unsigned char **key, unsigned int *key_len);
 
 /*******************************************************************************
  * Secure Partitions functions

@@ -1,0 +1,169 @@
+CAVIUM
+======
+
+ARM Trusted Firmware timers framework
+=====================================
+
+Purpose of this document is to describe timers framework in ATF, porting guide
+for this and example of usage. Main part is description of API exposed by timers
+library.
+
+
+Timers framework
+-----------------
+Timers framework purpose is to provide layer of abstraction when using hardware
+timers. Simple API makes developing of time-related tasks easier. Timers
+framework consist of two main parts:
+ - Timers library - frontend of framework, which makes use of hardware exposed
+   by lower level drivers and provides API for developers.
+ - Platform timers driver - backend of framework, which consist of hardware
+   driver, directly operating on real device. In the same time, this layer
+   exposes all functions required by timers library to work correctly.
+
+
+Timers library API
+------------------
+Frontend API of library consist of following:
+
+-> int timers_init(void)
+/*
+ * Performs basic initialisation of timers framework, must be called before
+ * attempting to run any other function from API.
+ * Params_in: N/A
+ * Return value:  0 on success
+ *               -1 when there are no HW timers available on platform
+ */
+
+-> int timer_set_period(int hd, uint32_t period)
+/*
+ * Allows to set new period for created timer entity. Can modify interval only
+ * for previously stopped one-shot timer.
+ * Params_in: hd - timer's handler returned by timer_create() function
+ *            period - timer interval in ms
+ * Return value:  0 on success
+ *               -1 when
+ *                  -> timer with provided hd wasn't created
+ *                  -> timer is still running (not stopped with timer_stop)
+ *                  -> timer isn't of type TM_ONE_SHOT
+ */
+
+-> int timer_stop(int hd)
+/*
+ * Allows to stop previously started timer entity.
+ * Params_in: hd - timer's handler returned by timer_create() function
+ * Return value:  0 on success
+ *               -1 when timer wasn't started
+ */
+
+-> int timer_start(int hd)
+/*
+ * Allows to start previously created timer. It firstly program timer with
+ * registered period and then start it.
+ * Param_in: hd - timer's handler returned by timer_create() function
+ * Return value:  0 on success
+ *               -1 when timer wasn't created
+ */
+
+-> int timer_create(timer_kind_t type, uint32_t period, timer_callback_t cb)
+/*
+ * Allows to create timer entity with specified timer_type, period and callback
+ * function, which will be executed during timers interrupts. This function
+ * doesn't start timer, it's necessary to do this explicitly via call to
+ * timer_start().
+ * Params_in: type - one of timer entity type, TM_PERIODIC for timer which
+ *                   should execute callback function periodically or
+ *                   TM_ONE_SHOT for timers, which callback should be executed once
+ *                   after registered period
+ *            period - timers interval in ms
+ *            cb - callback function which will be executed on timer's events
+ * Return value: timer_handler - timer ID, which is used to identify specific
+ *                               timer entity when using other functions from API
+ */
+
+
+Example of usage
+----------------
+
+#include <timers.h>
+
+/* Interrupt service routine, executed on every timer event */
+int example_isr(int id)
+{
+       printf("We got this!\n");
+       return 0;
+}
+
+int timers(void)
+{
+	int rc;
+	int timers_handler;
+
+	/* Initialize timers framework */
+	if (timers_init()) {
+		printf("Error during timers initialization!\n")
+		return -1;
+	}
+
+	/* Create periodic timer with period 1000ms */
+	timer_handler = timer_create(TM_PERIODIC, 1000, example_isr);
+	if (timer_handler < 0) {
+		printf("No timers available!\n")
+		return -1;
+	}
+
+	/* Start timer */
+	timer_start(timer_handler);
+}
+
+
+Platform timers driver API
+--------------------------
+API exposed for _timers library_ consist of following:
+
+-> int plat_timers_init(void)
+/*
+ * Performs configuration of HW timer.
+ * Params_in: N/A
+ * Return value: 0 on success
+ */
+
+-> void plat_timer_set_period(uint64_t period)
+/*
+ * Set interval for HW timer to specified number of ticks.
+ * Params_in: period   - Number of timer's ticks to be programmed for next
+ *                       interval
+ * Return value: N/A
+ */
+
+-> uint64_t plat_timer_ms_to_ticks(uint32_t time)
+/*
+ * Method for transforming number of ms to timers' ticks count.
+ * Params_in: time     - Number of miliseconds to be transformed
+ * Return value: tick_count - number of timers' ticks corresponding to provided
+ *                            time in ms
+ *               -1 on failure
+ */
+
+-> void plat_timer_enable(int enable)
+/*
+ * Enable or disable HW timer.
+ * Params_in: enable   - Boolean value which indicate 1 - enable timer or
+ *                       0 - disable timer
+ * Return value: N/A
+ */
+
+-> int plat_timer_register_irq(hw_timer_isr_t isr)
+/*
+ * Allows to register interrupt service routine for hw timer. It must
+ * perform configuration of interrupts controller.
+ * Params_in: isr      - Pointer to interrupt service routine which should be
+ *                       invoked when interrupt from timer is signalled
+ * Return value: 0  on success
+ *               -1 on failure
+ */
+
+
+Porting guide
+-------------
+When adding support for new HW timer, one has to implement every method
+described in paragraph "Platform timers driver API".

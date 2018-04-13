@@ -68,6 +68,14 @@
 	cmp	x30, #EC_AARCH64_SMC
 	b.eq	smc_handler64
 
+        /* -----------------------------------------------------
+         * The following code handles any synchronous exception
+         * that is not an SMC.
+         * Right now this only happens when EL0 ISR is returning
+         * -----------------------------------------------------
+         */
+        b el3_exit_wfi
+
 	/* Other kinds of synchronous exceptions are not handled */
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	b	report_unhandled_exception

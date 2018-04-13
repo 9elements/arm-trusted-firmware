@@ -87,7 +87,7 @@ ifneq (${DEBUG}, 0)
         TF_CFLAGS	+= 	-g
         ASFLAGS		+= 	-g -Wa,--gdwarf-2
         # Use LOG_LEVEL_INFO by default for debug builds
-        LOG_LEVEL	:=	40
+        LOG_LEVEL	:=	50
 else
         BUILD_TYPE	:=	release
         $(eval $(call add_define,NDEBUG))
@@ -97,7 +97,7 @@ endif
 
 # Default build string (git branch and commit)
 ifeq (${BUILD_STRING},)
-        BUILD_STRING	:=	$(shell git describe --always --dirty --tags 2> /dev/null)
+        BUILD_STRING	:=	OCTEONTX_SDK_6_2_0_build_26
 endif
 VERSION_STRING		:=	v${VERSION_MAJOR}.${VERSION_MINOR}(${BUILD_TYPE}):${BUILD_STRING}
 
@@ -519,6 +519,7 @@ $(eval $(call assert_boolean,SAVE_KEYS))
 $(eval $(call assert_boolean,SEPARATE_CODE_AND_RODATA))
 $(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
 $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
+$(eval $(call assert_boolean,CRYPTO_BOARD_BOOT))
 $(eval $(call assert_boolean,USE_COHERENT_MEM))
 $(eval $(call assert_boolean,USE_TBBR_DEFS))
 $(eval $(call assert_boolean,WARMBOOT_ENABLE_DCACHE_EARLY))
@@ -566,6 +567,7 @@ $(eval $(call add_define,SEPARATE_CODE_AND_RODATA))
 $(eval $(call add_define,SPD_${SPD}))
 $(eval $(call add_define,SPIN_ON_BL1_EXIT))
 $(eval $(call add_define,TRUSTED_BOARD_BOOT))
+$(eval $(call add_define,CRYPTO_BOARD_BOOT))
 $(eval $(call add_define,USE_COHERENT_MEM))
 $(eval $(call add_define,USE_TBBR_DEFS))
 $(eval $(call add_define,WARMBOOT_ENABLE_DCACHE_EARLY))

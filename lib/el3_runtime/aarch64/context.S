@@ -18,6 +18,8 @@
 	.global	restore_gp_registers_eret
 	.global	restore_gp_registers_callee_eret
 	.global	el3_exit
+	.global el3_exit_wfi
+	.global el3_start_el0_isr
 
 /* -----------------------------------------------------
  * The following function strictly follows the AArch64
@@ -354,6 +356,12 @@ func restore_gp_registers_callee_eret
 	ldp	x30, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	msr	sp_el0, x17
 	ldp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
+
+	/* AP-23154 -- post-icc_eoirx flush moved here, keep vectors short */
+	nop; nop; nop; nop
+	dsb sy
+	isb
+
 	eret
 endfunc	restore_gp_registers_callee_eret
 
@@ -387,3 +395,136 @@ func el3_exit
 	/* Restore saved general purpose registers and return */
 	b	restore_gp_registers_eret
 endfunc el3_exit
+
+func el3_exit_wfi
+
+	/*discard recent LR */
+	ldr	x0, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR_BCK]
+	str	x0, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+
+	/*Restrores EL0ISR sysregs*/
+	mov x8, xzr
+	add x8, sp, #EL0ISR_CTX_SYSREGS_OFFSET
+	ldr x9, [x8, #EL0ISR_CTX_TCR_EL1]
+	msr tcr_el1, x9
+	ldr x9, [x8, #EL0ISR_CTX_TTBR0_EL1]
+	msr ttbr0_el1, x9
+	ldr x9, [x8, #EL0ISR_CTX_SCR_EL3]
+	msr scr_el3, x9
+	ldr x9, [x8, #EL0ISR_CTX_SPSR_EL3]
+	msr spsr_el3, x9
+	ldr x9, [x8, #EL0ISR_CTX_ELR_EL3]
+	msr elr_el3, x9
+	/*restore GP registers*/
+	mov x0, xzr
+	add x0, sp, #EL0ISR_CTX_GPREGS_OFFSET
+	ldp	x4, x5, [x0, #CTX_GPREG_X4]
+	ldp	x6, x7, [x0, #CTX_GPREG_X6]
+	ldp	x8, x9, [x0, #CTX_GPREG_X8]
+	ldp	x10, x11, [x0, #CTX_GPREG_X10]
+	ldp	x12, x13, [x0, #CTX_GPREG_X12]
+	ldp	x14, x15, [x0, #CTX_GPREG_X14]
+	ldp	x18, x19, [x0, #CTX_GPREG_X18]
+	ldp	x20, x21, [x0, #CTX_GPREG_X20]
+	ldp	x22, x23, [x0, #CTX_GPREG_X22]
+	ldp	x24, x25, [x0, #CTX_GPREG_X24]
+	ldp	x26, x27, [x0, #CTX_GPREG_X26]
+	ldp	x28, x29, [x0, #CTX_GPREG_X28]
+	ldp	 x30, x17, [x0, #CTX_GPREG_LR]
+	/* restore runtime stack */
+	msr	sp_el0, x17
+	nop
+	ldp	x16, x17, [x0, #CTX_GPREG_X16]
+	ldp	x2, x3, [x0, #CTX_GPREG_X2]
+	ldp	x0, x1, [x0, #CTX_GPREG_X0]
+	dsb sy
+	msr spsel, #0
+	/* AP-23154 -- post-icc_eoirx flush moved here, keep vectors short */
+	nop; nop; nop; nop
+	dsb sy
+	isb
+	ret
+endfunc el3_exit_wfi
+
+func el3_start_el0_isr
+	/* -------------------------------------------------------
+	 * Stop El1 interrupts before jumping. This assumes no
+	 * EL2 virtualization
+	 * X0 holds the gpio_num,
+	 * X1 holds sp
+	 * X2 holds ttbr
+	 * X3 holds isr_base
+	 * X4 holds spsr_el3
+	 * X5 holds scr_el3
+	 * X6 holds tcr_el1
+	 * -------------------------------------------------------
+	 */
+	msr spsel, #1
+	nop
+	str x0, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_TMP_HANDLE]
+	ldr	x0, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	str	x0, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR_BCK]
+
+	/* save GP registers */
+	mov x0, xzr
+	add x0, sp, #EL0ISR_CTX_GPREGS_OFFSET
+	stp	x2, x3, [x0, #CTX_GPREG_X2]
+	stp	x4, x5, [x0, #CTX_GPREG_X4]
+	stp	x6, x7, [x0, #CTX_GPREG_X6]
+	stp	x8, x9, [x0, #CTX_GPREG_X8]
+	stp	x10, x11, [x0, #CTX_GPREG_X10]
+	stp	x12, x13, [x0, #CTX_GPREG_X12]
+	stp	x14, x15, [x0, #CTX_GPREG_X14]
+	stp	x16, x17, [x0, #CTX_GPREG_X16]
+	stp	x18, x19, [x0, #CTX_GPREG_X18]
+	stp	x20, x21, [x0, #CTX_GPREG_X20]
+	stp	x22, x23, [x0, #CTX_GPREG_X22]
+	stp	x24, x25, [x0, #CTX_GPREG_X24]
+	stp	x26, x27, [x0, #CTX_GPREG_X26]
+	stp	x28, x29, [x0, #CTX_GPREG_X28]
+	mrs	x18, sp_el0
+	str	x18, [x0, #CTX_GPREG_SP_EL0]
+	str	x30, [x0, #CTX_GPREG_LR]
+	ldr	x0, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_TMP_HANDLE]
+	mov x8, xzr
+	add x8, sp, #EL0ISR_CTX_GPREGS_OFFSET
+	stp	x0, x1, [x8, #CTX_GPREG_X0]
+	/*save EL0ISR specific system registers */
+	mov x8, xzr
+	add x8, sp, #EL0ISR_CTX_SYSREGS_OFFSET
+	mrs x9, tcr_el1
+	str x9, [x8, #EL0ISR_CTX_TCR_EL1]
+	mrs x9, ttbr0_el1
+	str x9, [x8, #EL0ISR_CTX_TTBR0_EL1]
+	mrs x9, scr_el3
+	str x9, [x8, #EL0ISR_CTX_SCR_EL3]
+	mrs x9, spsr_el3
+	str x9, [x8, #EL0ISR_CTX_SPSR_EL3]
+	mrs x9, elr_el3
+	str x9, [x8, #EL0ISR_CTX_ELR_EL3]
+
+	/*EL0 specific settings
+	 * This will allow wfi in EL0 to cuase async exception to EL3
+	 */
+	msr sp_el0, x1
+	nop
+	msr tcr_el1, x6
+	msr ttbr0_el1, x2
+	msr scr_el3, x5
+	msr spsr_el3, x4
+	msr elr_el3, x3
+	/*clear all registers except x0(gpio_num)*/
+	mov x1, xzr; mov x2, xzr; mov x3, xzr; mov x4, xzr;
+	mov x5, xzr; mov x6, xzr; mov x7, xzr; mov x8, xzr;
+	mov x9, xzr; mov x10, xzr; mov x11, xzr; mov x12, xzr;
+	mov x13, xzr; mov x14, xzr; mov x15, xzr; mov x16, xzr;
+	mov x17, xzr; mov x18, xzr; mov x19, xzr; mov x20, xzr;
+	mov x21, xzr; mov x22, xzr; mov x23, xzr; mov x24, xzr;
+	mov x25, xzr; mov x26, xzr; mov x27, xzr; mov x28, xzr;
+	mov x29, xzr; mov x30, xzr;
+	/* AP-23154 -- post-icc_eoirx flush moved here, keep vectors short */
+	nop; nop; nop; nop
+	dsb sy
+	isb
+	eret
+endfunc el3_start_el0_isr

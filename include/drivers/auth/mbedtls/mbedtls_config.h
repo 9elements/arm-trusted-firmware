@@ -21,6 +21,11 @@
 #define TF_MBEDTLS_SHA512		3
 
 /*
+ * Cipher types currently supported on mbed TLS libraries
+ */
+#define TBBR_AES_128_CBC 1
+
+/*
  * Configuration file to build mbed TLS with the required features for
  * Trusted Boot
  */
@@ -70,6 +75,11 @@
 #define MBEDTLS_ECDSA_C
 #define MBEDTLS_ECP_C
 #define MBEDTLS_ECP_DP_SECP256R1_ENABLED
+#endif
+
+#if (TBBR_CIPHER_TYPE_ID == TBBR_AES_128_CBC)
+#define MBEDTLS_AES_C
+#define MBEDTLS_CIPHER_MODE_CBC
 #endif
 
 #define MBEDTLS_SHA256_C

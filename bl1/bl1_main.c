@@ -35,7 +35,7 @@ void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 			meminfo_t *bl2_mem_layout)
 {
 	assert(bl1_mem_layout != NULL);
-	assert(bl2_mem_layout != NULL);
+
 
 #if LOAD_IMAGE_V2
 	/*
@@ -46,6 +46,12 @@ void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 	bl2_mem_layout->total_base = bl1_mem_layout->total_base;
 	bl2_mem_layout->total_size = BL1_RW_BASE - bl1_mem_layout->total_base;
 #else
+	/*
+	 * ASSERT bl2_mem_layout only when LOAD_IMAGE_V2 is not defined,
+	 * it's free_base which never will be at 0x0
+	 */
+	assert(bl2_mem_layout != NULL);
+
 	/* Check that BL1's memory is lying outside of the free memory */
 	assert((BL1_RAM_LIMIT <= bl1_mem_layout->free_base) ||
 	       (BL1_RAM_BASE >= bl1_mem_layout->free_base +

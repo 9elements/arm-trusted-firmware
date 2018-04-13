@@ -251,6 +251,16 @@ int psci_setup(const psci_lib_args_t *lib_args)
 	if (psci_plat_pm_ops->system_reset2)
 		psci_caps |= define_psci_cap(PSCI_SYSTEM_RESET2_AARCH64);
 
+	/*
+	 * Workaround: Enable migrate_info and migrate_info_up_cpu SMCs
+	 * Even tough currently any Trusted OS isn't supported on Cavium
+	 * platforms, we cannot allow to unplug CPU0, because of secure IRQs
+	 * configuration. In order to achieve that, we will mark CPU0 as running
+	 * TOS unable to migrate - OS won't disable this CPU.
+	 */
+	psci_caps |=  define_psci_cap(PSCI_MIG_INFO_TYPE);
+	psci_caps |=  define_psci_cap(PSCI_MIG_INFO_UP_CPU_AARCH64);
+
 #if ENABLE_PSCI_STAT
 	psci_caps |=  define_psci_cap(PSCI_STAT_RESIDENCY_AARCH64);
 	psci_caps |=  define_psci_cap(PSCI_STAT_COUNT_AARCH64);

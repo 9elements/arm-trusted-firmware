@@ -10,12 +10,14 @@
 #include <mbedtls_config.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdio.h>
 
 /* mbed TLS headers */
 #include <mbedtls/md.h>
 #include <mbedtls/memory_buffer_alloc.h>
 #include <mbedtls/oid.h>
 #include <mbedtls/platform.h>
+#include <mbedtls/aes.h>
 
 #define LIB_NAME		"mbed TLS"
 
@@ -204,7 +206,61 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 	return CRYPTO_SUCCESS;
 }
 
+#if CRYPTO_BOARD_BOOT
+static int decrypt_image(void *data_ptr, unsigned int data_len,
+			 unsigned int cipher_type, unsigned char **key, unsigned int *key_len)
+{
+	mbedtls_aes_context ctx;
+	unsigned char iv[16] = { 0 };
+	unsigned char *ptr;
+	int rc;
+
+	ptr = (unsigned char *)data_ptr;
+
+	switch (cipher_type) {
+		case TBBR_AES_128_CBC:
+			/*
+			 * Set AES key for decryption, key_len is given in bytes, passed
+			 * to mbedtls_aes_setkey_dec in # of bits
+			 */
+			rc = mbedtls_aes_setkey_dec( &ctx, *key, (*key_len)*8 );
+			if (rc != 0) {
+				printf("CRYPTO: Unable to set AES key for decryption, rc=%d\n",
+					rc);
+				return CRYPTO_ERR_DECRYPT;
+			}
+
+			/* Perform decryption of image */
+			rc = mbedtls_aes_crypt_cbc( &ctx,
+						    MBEDTLS_AES_DECRYPT,
+						    data_len,
+						    iv,
+						    ptr,
+						    ptr);
+			if (rc != 0) {
+				printf("CRYPTO: Unable to decrypt image, rc=%d\n",
+					rc);
+				return CRYPTO_ERR_DECRYPT;
+			}
+
+			mbedtls_aes_free(&ctx);
+			break;
+		default:
+			printf("CRYPTO: Unsupported cipher type: %d\n", cipher_type);
+			return CRYPTO_ERR_DECRYPT;
+	}
+
+	return CRYPTO_SUCCESS;
+}
+#else /* CRYPTO_BOARD_BOOT */
+static int decrypt_image(void *data_ptr, unsigned int data_len,
+			 unsigned int cipher_type, unsigned char **key, unsigned int *key_len)
+{
+	return CRYPTO_SUCCESS;
+}
+#endif /* CRYPTO_BOARD_BOOT */
+
 /*
  * Register crypto library descriptor
  */
-REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash);
+REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash, decrypt_image);
