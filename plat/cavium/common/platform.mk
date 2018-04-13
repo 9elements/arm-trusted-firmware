@@ -13,7 +13,7 @@
 
 LIBFDT_DIR		:=	lib/libfdt
 
-PLAT_INCLUDES		:=	-Icsr/include					\
+PLAT_INCLUDES		:=	-Iplat/cavium/common/csr/include		\
 				-Iinclude/common/tbbr				\
 				-Iinclude/lib/libfdt 				\
 				-Iinclude/lib/stdlib				\
