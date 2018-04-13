@@ -125,8 +125,10 @@ void thunder_pwrc_write_pcoffr(unsigned long mpidr)
 
 }
 
-/* Nothing else to do here apart from initializing the lock */
+extern void cavium_secure_entrypoint(void);
+
 int thunder_pwrc_setup(void)
 {
+	set_secondary_cpu_jump_addr((unsigned long)&cavium_secure_entrypoint);
 	return 0;
 }

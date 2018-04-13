@@ -79,9 +79,9 @@ unsigned thunder_get_node_count(void)
  * Setup secondary CPU JUMP address from RESET
  ******************************************************************************/
 
-void  set_secondary_cpu_jump_addr(unsigned int bl1_base)
+void set_secondary_cpu_jump_addr(unsigned long addr)
 {
-       CSR_WRITE_PA(0, CAVM_MIO_BOOT_AP_JUMP, bl1_base);
+	CSR_WRITE_PA(0, CAVM_MIO_BOOT_AP_JUMP, addr);
 }
 
 void plat_add_mmio_map()
