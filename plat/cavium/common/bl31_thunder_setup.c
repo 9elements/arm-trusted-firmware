@@ -257,6 +257,7 @@ static void thunder_gpio_irq_init(void)
  ******************************************************************************/
 void bl31_platform_setup()
 {
+	thunder_cpu_setup();
 	thunder_gti_init();
 
 	thunder_configure_mmc_security();
