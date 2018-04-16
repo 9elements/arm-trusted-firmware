@@ -43,6 +43,7 @@
 #include <thunder_private.h>
 #include <thunder_common.h>
 #include <thunder_dt.h>
+#include <thunder_io.h>
 #include <libfdt.h>
 #include <plat_params.h>
 
@@ -267,6 +268,7 @@ void bl31_platform_setup()
 	thunder_gic_init();
 	thunder_gpio_irq_init();
 	timers_init();
+	init_thunder_io(thunder_get_node_count());
 
 	sata_ipm_quirk();
 
