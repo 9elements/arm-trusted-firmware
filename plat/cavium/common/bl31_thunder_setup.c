@@ -269,6 +269,9 @@ void bl31_platform_setup()
 
 	/* Intialize the power controller */
 	thunder_pwrc_setup();
+
+	/* Active secure/insecure split */
+	thunder_security_setup();
 }
 
 /*******************************************************************************
