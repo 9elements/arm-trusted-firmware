@@ -228,7 +228,7 @@ int sdmmc_rw_data(int write, unsigned int addr, int size, uintptr_t buf, int buf
 
 		inv_dcache_range(tmp_buf, blks * mmc_drv.sector_size);
 
-		asm volatile ("dsb sy");
+		__asm__ volatile ("dsb sy");
 
 		bytes = blk_cnt ? (mmc_drv.sector_size * blks - offset) : size;
 

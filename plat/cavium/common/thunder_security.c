@@ -31,9 +31,9 @@ void l2c_flush(void)
 
 	csselr_el1.s.level = 1;
 
-	asm volatile ("msr csselr_el1, %0" : : "r"(csselr_el1.u));
+	__asm__ volatile ("msr csselr_el1, %0" : : "r"(csselr_el1.u));
 
-	asm volatile ("mrs %0, ccsidr_el1" : "=&r"(ccsidr_el1.u));
+	__asm__ volatile ("mrs %0, ccsidr_el1" : "=&r"(ccsidr_el1.u));
 
 	sets = ccsidr_el1.s.numsets + 1;
 	ways = ccsidr_el1.s.associativity + 1;
@@ -43,7 +43,7 @@ void l2c_flush(void)
 	for (l2_way = 0; l2_way < ways; l2_way++) {
 		for (l2_set = 0; l2_set < sets; l2_set++) {
 			val = 128 * (l2_set + sets * (l2_way + (is_rtg * MAX_WAYS)));
-			asm volatile("sys #0,c11,C0,#5, %0\n" : : "r"(val));
+			__asm__ volatile("sys #0,c11,C0,#5, %0\n" : : "r"(val));
 		}
 	}
 
@@ -51,7 +51,7 @@ void l2c_flush(void)
 	for (l2_way = 0; l2_way < ways; l2_way++) {
 		for (l2_set = 0; l2_set < sets; l2_set++) {
 			val = 128 * (l2_set + sets * (l2_way + (is_rtg * MAX_WAYS)));
-			asm volatile("sys #0,c11,C0,#5, %0\n" : : "r"(val));
+			__asm__ volatile("sys #0,c11,C0,#5, %0\n" : : "r"(val));
 		}
 	}
 }
@@ -131,6 +131,6 @@ void thunder_security_setup(void)
 	l2c_flush();
 
 	VERBOSE("Flushing IC\n");
-	asm volatile("ic iallu\n"
+	__asm__ volatile("ic iallu\n"
 		     "isb\n");
 }

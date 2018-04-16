@@ -496,9 +496,9 @@ int gpio_install_irq(uint64_t gpio_num, uint64_t sp, uint64_t  cpu,
 	gpio_ints[gpio_num].cpu = cpu;
 	gpio_ints[gpio_num].ttbr = 0;
 	gpio_ints[gpio_num].isr_base = isr_base;
-	asm volatile("mrs %0, ttbr0_el1\n\t" : "=r"(gpio_ints[gpio_num].ttbr));
+	__asm__ volatile("mrs %0, ttbr0_el1\n\t" : "=r"(gpio_ints[gpio_num].ttbr));
 	gpio_ints[gpio_num].tcr = 0;
-	asm volatile("mrs %0, tcr_el1\n\t" : "=r"(gpio_ints[gpio_num].tcr));
+	__asm__ volatile("mrs %0, tcr_el1\n\t" : "=r"(gpio_ints[gpio_num].tcr));
 	gpio_ints[gpio_num].tcr &= ~(1ULL << 22);
 	retval = set_gpio_msix_int_entry(thunder_gpio_pconfig, gpio_num,
 					 cpu, 1);

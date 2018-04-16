@@ -87,7 +87,7 @@ ifneq (${DEBUG}, 0)
         TF_CFLAGS	+= 	-g
         ASFLAGS		+= 	-g -Wa,--gdwarf-2
         # Use LOG_LEVEL_INFO by default for debug builds
-        LOG_LEVEL	:=	50
+        LOG_LEVEL	:=	40
 else
         BUILD_TYPE	:=	release
         $(eval $(call add_define,NDEBUG))
@@ -97,7 +97,7 @@ endif
 
 # Default build string (git branch and commit)
 ifeq (${BUILD_STRING},)
-        BUILD_STRING	:=	OCTEONTX_SDK_6_2_0_build_26
+        BUILD_STRING	:=	$(shell git describe --always --dirty --tags 2> /dev/null)
 endif
 VERSION_STRING		:=	v${VERSION_MAJOR}.${VERSION_MINOR}(${BUILD_TYPE}):${BUILD_STRING}
 
@@ -163,7 +163,7 @@ ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
 				-D__ASSEMBLY__ -ffreestanding 			\
 				-Wa,--fatal-warnings
 TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
-				-ffreestanding -fno-builtin -Wall -std=gnu99	\
+				-ffreestanding -fno-builtin -Wall -std=c99	\
 				-Os -ffunction-sections -fdata-sections
 
 GCC_V_OUTPUT		:=	$(shell $(CC) -v 2>&1)
