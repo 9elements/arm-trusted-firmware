@@ -44,6 +44,7 @@
 #include <thunder_common.h>
 #include <thunder_dt.h>
 #include <libfdt.h>
+#include <plat_params.h>
 
 #include <debug.h>
 #include <timers.h>
@@ -153,7 +154,7 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	assert(from_bl2->h.type == PARAM_BL31);
 	assert(from_bl2->h.version >= VERSION_1);
 
-	fdt_ptr = plat_params_from_bl2;
+	params_early_setup(plat_params_from_bl2);
 
 	/*
 	 * Copy BL3-3, BL3-2 entry point information.
