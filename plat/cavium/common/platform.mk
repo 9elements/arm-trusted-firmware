@@ -17,7 +17,7 @@ PLAT_INCLUDES		:=	-Icsr/include					\
 				-Iinclude/common/tbbr				\
 				-Iinclude/lib/libfdt 				\
 				-Iinclude/lib/stdlib				\
-				-Iplat/cavium/common/include 			\
+				-Iplat/cavium/common/include
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/aarch64/pl011_console.S	\
 				drivers/cavium/thunder_mmc.c			\
@@ -31,6 +31,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/aarch64/pl011_console.S	\
 				plat/cavium/common/thunder_dram.c		\
 				plat/cavium/common/thunder_dt.c			\
 				plat/cavium/common/thunder_io_storage.c		\
+				plat/cavium/common/thunder_console.c
 
 BL31_SOURCES		+=	drivers/arm/gic/common/gic_common.c		\
 				drivers/arm/gic/v3/gicv3_main.c			\
@@ -58,7 +59,7 @@ CRASH_REPORTING		:=	1
 
 ASM_ASSERTION		:=	1
 
-PL011_GENERIC_UART	:=	1
+MULTI_CONSOLE_API	:=	1
 
 ERROR_DEPRECATED	:=	1
 

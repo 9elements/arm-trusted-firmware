@@ -139,4 +139,10 @@
 
 #define NS_DMA_MEMORY_SIZE		0x100000
 
+/*
+ * PL011 related constants
+ */
+
+#define PLAT_CAVIUM_CONSOLE_BAUDRATE      115200
+
 #endif

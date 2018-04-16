@@ -41,6 +41,7 @@
 #include <stddef.h>
 #include <xlat_tables.h>
 #include <thunder_private.h>
+#include <thunder_common.h>
 #include <thunder_dt.h>
 #include <libfdt.h>
 
@@ -108,10 +109,10 @@ void bl31_early_platform_setup(void *from_bl2,
 				void *plat_params_from_bl2)
 #else
 void bl31_early_platform_setup(bl31_params_t *from_bl2,
-				void *plat_params_from_bl2)
+			        void *plat_params_from_bl2)
 #endif
 {
-	console_init(CSR_PA(0, CAVM_UAAX_PF_BAR0(0)), 0, 0);
+	cavium_console_init();
 
 #if LOAD_IMAGE_V2
 	/*
@@ -163,6 +164,12 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	bl33_image_ep_info = *from_bl2->bl33_ep_info;
 #endif /* LOAD_IMAGE_V2 */
 
+}
+
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+				u_register_t arg2, u_register_t arg3)
+{
+	bl31_early_platform_setup((void *)arg0, (void *)arg1);
 }
 
 static void thunder_el3_irq_init(void)
@@ -300,7 +307,5 @@ void bl31_plat_arch_setup()
 
 void bl31_plat_runtime_setup(void)
 {
-#ifndef DEBUG
-	console_uninit();
-#endif
+	cavium_console_unregister();
 }
