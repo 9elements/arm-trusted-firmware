@@ -268,7 +268,6 @@ void bl31_platform_setup()
 	thunder_gic_init();
 	thunder_gpio_irq_init();
 	timers_init();
-	init_thunder_io(thunder_get_node_count());
 
 	sata_ipm_quirk();
 
