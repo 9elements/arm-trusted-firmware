@@ -89,9 +89,9 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 
 	if (type == NON_SECURE)
 		return &bl33_image_ep_info;
+	if (type == SECURE)
+		return &bl32_image_ep_info;
 
-	/* Currently Cavium platforms does not support BL32 image,
-	 * for SECURE type image return NULL */
 	return NULL;
 }
 
@@ -269,7 +269,9 @@ void bl31_platform_setup()
 	thunder_gpio_irq_init();
 	timers_init();
 
+#if CAVIUM_SATA_IPM_QUIRK
 	sata_ipm_quirk();
+#endif
 
 	/* Intialize the power controller */
 	thunder_pwrc_setup();
