@@ -33,36 +33,35 @@ unsigned int thunder_pwrc_read_psysr(unsigned long mpidr)
 
 int thunder_wait_for_core(unsigned node)
 {
-
 	int loop=10;
 	volatile union cavm_rst_pp_pending pp_pending;
 
-    /*TODO: This might be a good chance to implement
-     * Simple timer library.
-     **/
+	/* TODO: This might be a good chance to implement
+	 * Simple timer library.
+	 **/
 
-    /* give core chance to come up */
-    while(loop) {
-        __asm__ __volatile__ ("udiv xzr, xzr,xzr");
-        __asm__ __volatile__ ("udiv xzr, xzr,xzr");
-        __asm__ __volatile__ ("udiv xzr, xzr,xzr");
-        __asm__ __volatile__ ("udiv xzr, xzr,xzr");
-        loop --;
-    }
+	/* give core chance to come up */
+	while (loop) {
+		__asm__ __volatile__ ("udiv xzr, xzr,xzr");
+		__asm__ __volatile__ ("udiv xzr, xzr,xzr");
+		__asm__ __volatile__ ("udiv xzr, xzr,xzr");
+		__asm__ __volatile__ ("udiv xzr, xzr,xzr");
+		loop --;
+	}
 
-    loop =1000000;
-    while(loop) {
-        pp_pending.u = CSR_READ_PA(node, CAVM_RST_PP_PENDING);
+	loop =1000000;
+	while (loop) {
+		pp_pending.u = CSR_READ_PA(node, CAVM_RST_PP_PENDING);
 
-        if(!pp_pending.s.pend)
-            break;
-        __asm__ __volatile__ ("udiv xzr, xzr,xzr");
-        __asm__ __volatile__ ("udiv xzr, xzr,xzr");
-        loop--;
-    }
-    if(loop == 0)
-	    return 1;
-    return 0;
+		if(!pp_pending.s.pend)
+			break;
+		__asm__ __volatile__ ("udiv xzr, xzr,xzr");
+		__asm__ __volatile__ ("udiv xzr, xzr,xzr");
+		loop--;
+	}
+	if (loop == 0)
+		return 1;
+	return 0;
 
 }
 
@@ -78,7 +77,7 @@ void thunder_pwrc_write_pponr(unsigned long mpidr)
 
 	pp_reset.u = CSR_READ_PA(node, CAVM_RST_PP_RESET);
 
-	if(!(pp_reset.u & (1ul << cavm_core_id))) {
+	if (!(pp_reset.u & (1ul << cavm_core_id))) {
 		/* core is WFI suspended state
 		 * Need to reset it by writing 1 to RST_PP_RESET and then
 		 * clearing it.
@@ -87,7 +86,7 @@ void thunder_pwrc_write_pponr(unsigned long mpidr)
 		CSR_WRITE_PA(node, CAVM_RST_PP_RESET, pp_reset.u);
 		__asm("dsb ishst");
 		__asm("sev");
-		if(thunder_wait_for_core(node)) {
+		if (thunder_wait_for_core(node)) {
 			WARN("Failed to release core:%lu on node:%lu\n ",
 					cavm_core_id,node);
 			while(1);
@@ -99,7 +98,7 @@ void thunder_pwrc_write_pponr(unsigned long mpidr)
 	CSR_WRITE_PA(node, CAVM_RST_PP_RESET, pp_reset.u);
 	__asm("dsb ishst");
 	__asm("sev");
-	if(thunder_wait_for_core(node)){
+	if (thunder_wait_for_core(node)){
 		WARN("Failed to release core:%lu on node:%lu\n ",
 				cavm_core_id,node);
 	}
