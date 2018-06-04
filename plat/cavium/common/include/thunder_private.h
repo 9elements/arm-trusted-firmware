@@ -49,7 +49,9 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(cvm_access_el3, AP_CVM_ACCESS_EL3)
 	 (((midr) >> MIDR_REV_SHIFT & MIDR_REV_MASK) == (low)))
 
 /* In Mhz */
+#ifndef THUNDER_SYSCNT_FREQ
 #define THUNDER_SYSCNT_FREQ	100ull
+#endif
 
 void plat_add_mmio_map(void);
 void thunder_security_setup(void);
@@ -61,7 +63,6 @@ extern void *fdt_ptr;
 void thunder_gic_driver_init(void);
 void thunder_gic_init(void);
 unsigned int thunder_calc_core_pos(unsigned long mpidr);
-void thunder_pci_init(void);
 void thunder_gti_init(void);
 void thunder_signal_shutdown(void);
 int thunder_pwrc_setup(void);
@@ -120,25 +121,30 @@ static inline int thunder_gpio_intr_pinx_clear(int gpio_num)
 	return -1;
 }
 
-#define THUNDER_IRQ_MASKED	(1ull << 32)
-
 /* Secure timer IRQ */
 #define THUNDER_IRQ_SEC_PHY_TIMER 0x1d
 
 /* GPIO IRQs. ATF receives S_IRQ and then sends NS_IRQ to NS world. */
-#define THUNDER_IRQ_GPIO_PWR_NS		0x20
-#define THUNDER_IRQ_GPIO_PWR_S		0x21
+#define THUNDER_IRQ_GPIO_PWR_NS                0x20
+#define THUNDER_IRQ_GPIO_PWR_S         0x21
 
 /* TWSI Secure interrupt for BMC events */
-#define THUNDER_IRQ_TWSI_BMC_S		0x22
+#define THUNDER_IRQ_TWSI_BMC_S         0x22
+
+#define THUNDER_IRQ_GPIO_BASE	0x75
+#define THUNDER_IRQ_GPIO_COUNT	0x4
+#define THUNDER_IRQ_GPIO_NSEC	0x79
+
+/* TWSI Secure interrupt for BMC events */
+#define THUNDER_IRQ_TWSI_BMC_S         0x22
 
 /*
  * 1 IRQs per UAA
  * 4 UAAs (2 per node)
  * 0x2 (2) IRQs used (shared between nodes)
  */
-#define THUNDER_IRQ_UAA0	0x25
-#define THUNDER_IRQ_UAA1	0x26
+#define THUNDER_IRQ_UAA0       0x25
+#define THUNDER_IRQ_UAA1       0x26
 
 /*
  * 4 IRQs per PEM (INTA, INTB, INTC, INTD)
@@ -146,7 +152,7 @@ static inline int thunder_gpio_intr_pinx_clear(int gpio_num)
  * 0x30 (48) IRQs used
  * Next spare IRQ = 0x60
  */
-#define THUNDER_IRQ_PEM_BASE	0x30
+#define THUNDER_IRQ_PEM_BASE   0x30
 
 /*
  * 2 IRQs per SMMU (GLOBAL, CONTEXT)
@@ -154,17 +160,13 @@ static inline int thunder_gpio_intr_pinx_clear(int gpio_num)
  * 0x10 (16) IRQs used
  * Next spare IRQ = 0x74
  */
-#define THUNDER_IRQ_SMMU_BASE	0x64
+#define THUNDER_IRQ_SMMU_BASE  0x64
 
 
 /*
  * watchdog GTI irqs assigned from here
  */
-#define THUNDER_IRQ_GTI_WDOG	0x74
-
-#define THUNDER_IRQ_GPIO_BASE	0x75
-#define THUNDER_IRQ_GPIO_COUNT	0x4
-#define THUNDER_IRQ_GPIO_NSEC	0x79
+#define THUNDER_IRQ_GTI_WDOG   0x74
 
 #define THUNDER_GPIO_DT_PATH	"/soc@0/pci@848000000000/gpio0@6,0"
 

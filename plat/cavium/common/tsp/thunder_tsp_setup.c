@@ -54,7 +54,7 @@ void tsp_early_platform_setup(void)
 	 * Initialize a different console than already in use to display
 	 * messages from TSP
 	 */
-	console_init(CSR_PA(0, CAVM_UAAX_PF_BAR0(0)), 0, 0);
+	cavium_console_init();
 }
 
 /*******************************************************************************
