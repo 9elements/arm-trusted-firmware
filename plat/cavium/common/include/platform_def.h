@@ -122,4 +122,8 @@
 
 #define PLAT_CAVIUM_CONSOLE_BAUDRATE      115200
 
+#ifndef CAVIUM_SATA_IPM_QUIRK
+#define CAVIUM_SATA_IPM_QUIRK 1
+#endif
+
 #endif
