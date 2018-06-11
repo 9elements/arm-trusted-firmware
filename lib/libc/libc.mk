@@ -22,6 +22,7 @@ LIBC_SRCS	:=	$(addprefix lib/libc/,		\
 			strlcpy.c			\
 			strlen.c			\
 			strncmp.c			\
+			strncpy.c			\
 			strnlen.c			\
 			strrchr.c			\
 			strtol.c)

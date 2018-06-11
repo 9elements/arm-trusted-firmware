@@ -27,6 +27,7 @@ void *memchr(const void *src, int c, size_t len);
 char *strchr(const char *s, int c);
 void *memset(void *dst, int val, size_t count);
 size_t strlen(const char *s);
+char *strncpy(char *dst, const char *src, size_t n);
 size_t strnlen(const char *s, size_t maxlen);
 char *strrchr(const char *p, int ch);
 size_t strlcpy(char * dst, const char * src, size_t dsize);
