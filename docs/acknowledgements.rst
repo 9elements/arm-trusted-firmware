@@ -15,3 +15,5 @@ Contributor Acknowledgements
 - Socionext Inc.
 - STMicroelectronics
 - Xilinx, Inc.
+- Cavium, Inc.
+- 9elements Agency GmbH

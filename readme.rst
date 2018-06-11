@@ -245,6 +245,7 @@ This release also contains the following platform support:
 -  STMicroelectronics STM32MP1
 -  Texas Instruments K3 SoCs
 -  Xilinx Versal and Zynq UltraScale + MPSoC
+-  CAVIUM ThunderX
 
 Still to come
 -------------
