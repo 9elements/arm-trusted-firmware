@@ -51,3 +51,22 @@ strncmp(const char *s1, const char *s2, size_t n)
 	} while (--n != 0);
 	return (0);
 }
+
+int
+strncasecmp(const char *s1, const char *s2, size_t n)
+{
+	const unsigned char *us1 = (const unsigned char *)s1;
+	const unsigned char *us2 = (const unsigned char *)s2;
+
+	if (n == 0)
+		return 0;
+	do {
+		if (tolower(*us1) != tolower(*us2))
+			return (*(const unsigned char *)us1 -
+				*(const unsigned char *)us2);
+		if (*us1++ == '\0')
+			break;
+		us2++;
+	} while (--n != 0);
+	return 0;
+}
