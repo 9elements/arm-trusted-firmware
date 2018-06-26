@@ -30,5 +30,6 @@ size_t strlen(const char *s);
 size_t strnlen(const char *s, size_t maxlen);
 char *strrchr(const char *p, int ch);
 size_t strlcpy(char * dst, const char * src, size_t dsize);
+long strtol(const char *nptr, char **endptr, int base);
 
 #endif /* STRING_H */
