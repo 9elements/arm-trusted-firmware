@@ -14,6 +14,8 @@ PLAT_INCLUDES		:=	-Iplat/cavium/common/csr/include		\
 PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/aarch64/pl011_console.S	\
 				lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
+				drivers/cavium/thunder_twsi.c			\
+				drivers/cavium/thunder_mmc.c			\
 				plat/cavium/common/thunder_common.c		\
 				plat/cavium/common/thunder_dram.c		\
 				plat/cavium/common/thunder_io_storage.c		\
@@ -22,6 +24,7 @@ BL31_SOURCES		+=	drivers/arm/gic/common/gic_common.c		\
 				drivers/arm/gic/v3/gicv3_main.c			\
 				drivers/arm/gic/v3/gicv3_helpers.c		\
 				drivers/delay_timer/delay_timer.c		\
+				drivers/cavium/thunder_spi.c			\
 				lib/cpus/aarch64/thunder.S			\
 				plat/cavium/common/aarch64/thunder_helpers.S	\
 				plat/cavium/common/bl31_thunder_setup.c		\
