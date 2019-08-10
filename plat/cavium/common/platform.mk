@@ -13,7 +13,8 @@ PLAT_INCLUDES		:=	-Iplat/cavium/common/csr/include		\
 				-Iinclude/lib/stdlib				\
 				-Iplat/cavium/common/include
 
-PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/aarch64/pl011_console.S	\
+PLAT_BL_COMMON_SOURCES	:=	common/desc_image_load.c			\
+				drivers/arm/pl011/aarch64/pl011_console.S	\
 				lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
 				drivers/cavium/thunder_twsi.c			\

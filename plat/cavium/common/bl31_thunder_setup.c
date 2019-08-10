@@ -23,6 +23,7 @@
 #include <libfdt.h>
 #include <plat_params.h>
 #include <errno.h>
+#include <common/desc_image_load.h>
 
 #include <debug.h>
 
@@ -62,13 +63,12 @@ static entry_point_info_t bl33_image_ep_info, bl32_image_ep_info;
 entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
 	assert(sec_state_is_valid(type));
+	entry_point_info_t *next_image_info;
 
-	if (type == NON_SECURE)
-		return &bl33_image_ep_info;
-	if (type == SECURE)
-		return &bl32_image_ep_info;
+	next_image_info = (type == NON_SECURE) ? &bl33_ep_info : &bl32_ep_info;
+	assert(next_image_info->h.type == PARAM_EP);
 
-	return NULL;
+	return next_image_info;
 }
 
 /*******************************************************************************
@@ -90,58 +90,14 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 			        void *plat_params_from_bl2)
 #endif
 {
-	cavium_console_init();
+        cavium_console_init();
 
-#if LOAD_IMAGE_V2
-	/*
-	 * Check params passed from BL2 should not be NULL,
-	 */
-	bl_params_t *params_from_bl2 = (bl_params_t *)from_bl2;
-	assert(params_from_bl2 != NULL);
-	assert(params_from_bl2->h.type == PARAM_BL_PARAMS);
-	assert(params_from_bl2->h.version >= VERSION_2);
+        params_early_setup(plat_params_from_bl2);
 
-	fdt_ptr = plat_params_from_bl2;
-	bl_params_node_t *bl_params = params_from_bl2->head;
+        bl31_params_parse_helper((u_register_t)from_bl2, &bl32_ep_info, &bl33_ep_info);
 
-	/*
-	 * Copy BL33 and BL32 (if present), entry point information.
-	 * They are stored in Secure RAM, in BL2's address space.
-	 */
-	while (bl_params) {
-		if (bl_params->image_id == BL32_IMAGE_ID)
-			bl32_image_ep_info = *bl_params->ep_info;
-
-		if (bl_params->image_id == BL33_IMAGE_ID)
-			bl33_image_ep_info = *bl_params->ep_info;
-
-		bl_params = bl_params->next_params_info;
-	}
-
-	if (bl33_image_ep_info.pc == 0)
-		panic();
-
-#else /* LOAD_IMAGE_V2 */
-
-	/* Check params passed from BL2 should not be NULL,
-	 * We are not checking plat_params_from_bl2 as NULL as we are not
-	 * using it on FVP
-	 */
-	assert(from_bl2 != NULL);
-	assert(from_bl2->h.type == PARAM_BL31);
-	assert(from_bl2->h.version >= VERSION_1);
-
-	params_early_setup(plat_params_from_bl2);
-
-	/*
-	 * Copy BL3-3, BL3-2 entry point information.
-	 * They are stored in Secure RAM, in BL2's address space.
-	 */
-	if (from_bl2->bl32_ep_info)
-		bl32_image_ep_info = *from_bl2->bl32_ep_info;
-	bl33_image_ep_info = *from_bl2->bl33_ep_info;
-#endif /* LOAD_IMAGE_V2 */
-
+        if (bl33_image_ep_info.pc == 0)
+                panic();
 }
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
